@@ -1,36 +1,20 @@
-from aiogram import types, executor
-from config import bot, dp
+from aiogram import executor
+from config import bot, dp, Admins
 import logging
-import os
+from handlers import commands, echo, quiz
 
+async def on_startup(_):
+    for admin in Admins:
+        await bot.send_message(chat_id=admin , text= "Bot was activated")
 
-@dp.message_handler(commands=["start", "help"])
-async def start_handler(message:types.Message):
-    await bot.send_message(chat_id=message.from_user.id,
-                           text=f"Hello {message.from_user.first_name}!\n"
-                           f"Your telegram id - {message.from_user.id}\n")
+async def on_shutdown(_):
+    for admin in Admins:
+        await bot.send_message(chat_id=admin , text= "Bot was deactivated")
 
-@dp.message_handler(commands=["BUBUBU"])
-async def meme_handler(message:types.Message):
-    photo_pass = os.path.join("media", "hqdefault.jpg")
-    with open(photo_pass, "rb") as photo:
-        await message.answer_photo(photo = photo, caption= "BUBUBU, I can't see, BUBUBU")
-
-@dp.message_handler(commands=["crocodile"])
-async def meme_handler(message:types.Message):
-    photo_pass = os.path.join("media", "img.png")
-    with open(photo_pass, "rb") as photo:
-        await message.answer_photo(photo = photo, caption= "crocodile")
-
-@dp.message_handler()
-async def echo_message(message:types.Message):
-    text = message.text
-    if text.isdigit():
-        squared = int(text)**2
-        await bot.send_message(message.chat.id, squared)
-    else:
-        await bot.send_message(message.chat.id, text)
+commands.register_commands_handlers(dp)
+quiz.register_quiz_handlers(dp)
+echo.register_echo_handlers(dp)
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    executor.start_polling(dp, skip_updates=True)
+    executor.start_polling(dp, skip_updates=True, on_startup=on_startup, on_shutdown=on_shutdown)
