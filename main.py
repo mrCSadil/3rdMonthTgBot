@@ -14,6 +14,7 @@ async def on_startup(_):
                                reply_markup=buttons.start_markup)
     await main_db.database_create_store()
     await main_db.database_create_products_details()
+    await main_db.database_create_collections()
 
 async def on_shutdown(_):
     for admin in Admins:

@@ -4,7 +4,7 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from buttons import cancel_markup, start_markup
 from aiogram.types import ReplyKeyboardRemove
-from db.main_db import sql_insert_store, sql_insert_products_details
+from db.main_db import sql_insert_store, sql_insert_products_details, sql_insert_collections
 
 
 class FSMStore(StatesGroup):
@@ -14,6 +14,7 @@ class FSMStore(StatesGroup):
     price = State()
     photo = State()
     productid = State()
+    collection = State()
     category_extra = State()
     infoproduct = State()
     Submit = State()
@@ -62,6 +63,13 @@ async def load_productid(message: types.Message, state: FSMContext):
         data['productid'] = message.text
 
     await FSMStore.next()
+    await message.answer('Enter collection of the model: ')
+
+async def load_collection(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['collection'] = message.text
+
+    await FSMStore.next()
     await message.answer('Enter category of the model: ')
 
 async def load_category_extra(message: types.Message, state: FSMContext):
@@ -84,9 +92,13 @@ async def load_infoproduct(message: types.Message, state: FSMContext):
                                        f'price - {data["price"]}\n'
                                         f'\n'
                                        f"information about model: \n"
-                                    f'product id - {data["productid"]}\n'
+                                       f'product id - {data["productid"]}\n'
                                        f'category - {data["category_extra"]}\n'
-                                       f'infoproduct - {data["infoproduct"]}\n')
+                                       f'infoproduct - {data["infoproduct"]}\n'
+                                        f"\n"
+                                       f"colletions\n"
+                                       f'product id - {data["productid"]}\n'
+                                        f"collection - {data['collection']}\n")
 
 
 async def load_submit(message: types.Message, state: FSMContext):
@@ -103,6 +115,11 @@ async def load_submit(message: types.Message, state: FSMContext):
                 data['productid'],
                 data['category_extra'],
                 data['infoproduct']
+            )
+
+            await sql_insert_collections(
+                data['productid'],
+                data['collection']
             )
 
         await message.answer('It have been saved')
@@ -133,6 +150,7 @@ def register_fsmstore_handlers(dp: Dispatcher):
     dp.register_message_handler(load_price, state=FSMStore.price)
     dp.register_message_handler(load_photo, state=FSMStore.photo, content_types=['photo'])
     dp.register_message_handler(load_productid, state=FSMStore.productid)
+    dp.register_message_handler(load_collection, state=FSMStore.collection)
     dp.register_message_handler(load_category_extra, state=FSMStore.category_extra)
     dp.register_message_handler(load_infoproduct , state=FSMStore.infoproduct)
     dp.register_message_handler(load_submit, state=FSMStore.Submit)

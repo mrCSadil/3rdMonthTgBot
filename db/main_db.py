@@ -3,9 +3,11 @@ from db import queries
 
 store_db = sqlite3.connect('db/store.sqlite3')
 products_db = sqlite3.connect('db/products_details.sqlite3')
+collections_db = sqlite3.connect('db/collections.sqlite3')
 
 store_cursor = store_db.cursor()
 products_cursor = products_db.cursor()
+collections_cursor = collections_db.cursor()
 
 async def database_create_store():
     if store_db:
@@ -15,6 +17,11 @@ async def database_create_store():
 async def database_create_products_details():
     if products_db:
         print('Products details database already exists')
+    products_cursor.execute(queries.CREATE_TABLE_products_details)
+
+async def database_create_collections():
+    if collections_db:
+        print('Collections database already exists')
     products_cursor.execute(queries.CREATE_TABLE_products_details)
 
 async def sql_insert_store(modelname, size, price, productid, photo):
@@ -28,3 +35,8 @@ async def sql_insert_products_details(productid, category, infoproduct):
         productid, category, infoproduct
     ))
     products_db.commit()
+
+async def sql_insert_collections(productid, category):
+    collections_cursor.execute(queries.INSERT_collection_QUERY, (
+        productid, category
+    ))

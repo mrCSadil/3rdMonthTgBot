@@ -72,7 +72,6 @@ async def load_submit(message: types.Message, state: FSMContext):
             await state.finish()
 
     elif message.text == 'Нет':
-        await message.answer('Хорошо, отменено!', reply_markup=start_markup)
         await state.finish()
 
     else:
