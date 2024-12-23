@@ -1,31 +1,50 @@
-CREATE_TABLE_store = """
-    CREATE TABLE IF NOT EXISTS store (
+# queries.py
+
+CREATE_TABLE_registered = """
+    CREATE TABLE IF NOT EXISTS registered (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    modelname TEXT,
-    size TEXT,
-    price TEXT, 
-    productid TEXT,
+    fullname TEXT,
+    age TEXT,
+    gender TEXT, 
+    email TEXT,
     photo TEXT
     )
 """
 
+INSERT_registered_QUERY = """
+    INSERT INTO registered (fullname, age, gender, email, photo)
+    VALUES (?, ?, ?, ?, ?)
+"""
+
+CREATE_TABLE_store = """
+    CREATE TABLE IF NOT EXISTS store (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name_product TEXT,
+    size TEXT,
+    price TEXT, 
+    product_id TEXT,
+    photo TEXT
+    )
+"""
+
+
+CREATE_TABLE_store_details = """
+    CREATE TABLE IF NOT EXISTS store_details (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category TEXT,
+    product_id TEXT,
+    info_product TEXT
+    )
+"""
+
 INSERT_store_QUERY = """
-    INSERT INTO store (modelname, size, price, productid, photo)
+    INSERT INTO store (name_product, size, price, product_id, photo)
     VALUES (?, ?, ?, ?, ?)
 """
 
 
-CREATE_TABLE_products_details  = """
-    CREATE TABLE IF NOT EXISTS products_details (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    productid TEXT,
-    category TEXT,
-    infoproduct TEXT
-    )
-"""
-
-INSERT_products_details_QUERY = """
-    INSERT INTO products_details (productid, category, infoproduct)
+INSERT_store_details_QUERY = """
+    INSERT INTO store_details (category, product_id, info_product)
     VALUES (?, ?, ?)
 """
 
@@ -38,6 +57,6 @@ CREATE_TABLE_collection_products = """
 """
 
 INSERT_collection_QUERY = """
-    INSERT INTO collection (id, productid, collcetion)
+    INSERT INTO collection (id, productid, collection)
     VALUES (?, ?)
 """

@@ -1,157 +1,145 @@
 from aiogram import types, Dispatcher
-from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from buttons import cancel_markup, start_markup
-from aiogram.types import ReplyKeyboardRemove
-from db.main_db import sql_insert_store, sql_insert_products_details, sql_insert_collections
+import buttons
+from aiogram.dispatcher import FSMContext
+from db import main_db
 
-
-class FSMStore(StatesGroup):
-    modelname = State()
+class store_fsm(StatesGroup):
+    collection = State()
+    name_product = State()
     size = State()
     category = State()
     price = State()
+    product_id = State()
+    info_product = State()
+
     photo = State()
-    productid = State()
-    collection = State()
-    category_extra = State()
-    infoproduct = State()
-    Submit = State()
+    submit = State()
+
 
 async def start_fsm_store(message: types.Message):
-    await message.answer('Enter name of model:', reply_markup=cancel_markup)
-    await FSMStore.modelname.set()
+    await message.answer('Введите название товара: ',
+                         reply_markup=buttons.cancel_markup)
+    await store_fsm.name_product.set()
 
-async def load_modelname(message: types.Message, state: FSMContext):
+
+async def load_name_product(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['modelname'] = message.text
+        data['name_product'] = message.text
 
-    await FSMStore.next()
-    await message.answer('Enter size of the model: ')
+    await store_fsm.next()
+    await message.answer('Введите размер товара: ')
+
 
 async def load_size(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['size'] = message.text
 
-    await FSMStore.next()
-    await message.answer('Enter category of the model: ')
+    await store_fsm.next()
+    await message.answer('Введите ктегорию товара: ')
 
 async def load_category(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['category'] = message.text
 
-    await FSMStore.next()
-    await message.answer('Enter price of the model: ')
+    await store_fsm.next()
+    await message.answer('Введите цена товара: ')
+
 
 async def load_price(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['price'] = message.text
 
-    await FSMStore.next()
-    await message.answer('Send photo of the model: ')
+    await store_fsm.next()
+    await message.answer('Введите артикул товара: ')
 
-async def load_photo(message: types.Message, state: FSMContext):
+
+async def load_product_id(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['photo'] = message.photo[-1].file_id
+        data['product_id'] = message.text
 
-    await FSMStore.next()
-    await message.answer('Enter product id of the model: ')
-
-async def load_productid(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['productid'] = message.text
-
-    await FSMStore.next()
-    await message.answer('Enter collection of the model: ')
+    await store_fsm.next()
+    await message.answer('Введите collection of the product: ')
 
 async def load_collection(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['collection'] = message.text
 
-    await FSMStore.next()
-    await message.answer('Enter category of the model: ')
+    await store_fsm.next()
+    await message.answer('Enter infoproduct  of the : ')
 
-async def load_category_extra(message: types.Message, state: FSMContext):
+async def load_info_product(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['category_extra'] = message.text
+        data['info_product'] = message.text
 
-    await FSMStore.next()
-    await message.answer('Enter infoproduct of the model: ')
+    await store_fsm.next()
+    await message.answer('Отправьте фото товара: ')
 
-async def load_infoproduct(message: types.Message, state: FSMContext):
+async def load_photo(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['infoproduct'] = message.text
+        data['photo'] = message.photo[-1].file_id
 
-    await FSMStore.next()
-    await message.answer(f'Is everything right?')
+    await store_fsm.next()
     await message.answer_photo(photo=data['photo'],
-                               caption=f'model - {data["modelname"]}\n'
-                                       f'size - {data["size"]}\n'
-                                       f'category - {data["category"]}\n'
-                                       f'price - {data["price"]}\n'
-                                        f'\n'
-                                       f"information about model: \n"
-                                       f'product id - {data["productid"]}\n'
-                                       f'category - {data["category_extra"]}\n'
-                                       f'infoproduct - {data["infoproduct"]}\n'
-                                        f"\n"
-                                       f"colletions\n"
-                                       f'product id - {data["productid"]}\n'
-                                        f"collection - {data['collection']}\n")
+                               caption=f'Название - {data["name_product"]}\n'
+                                       f'Размер - {data["size"]}\n'
+                                       f'Категория - {data["category"]}\n'
+                                       f'Артикул - {data["product_id"]}\n'
+                                       f'Информация о товаре - {data["info_product"]}\n'
+                                       f'Цена - {data["price"]}\n')
+
 
 
 async def load_submit(message: types.Message, state: FSMContext):
-    if message.text.lower().strip() == 'yes':
+    if message.text == 'yes':
         async with state.proxy() as data:
-            await sql_insert_store(
-                data['modelname'],
-                data['size'],
-                data['price'],
-                data['productid'],
-                data['photo']
+            await main_db.sql_insert_store(
+                name_product=data['name_product'],
+                size=data['size'],
+                price=data['price'],
+                product_id=data['product_id'],
+                photo=data['photo']
             )
-            await sql_insert_products_details(
-                data['productid'],
-                data['category_extra'],
-                data['infoproduct']
-            )
-
-            await sql_insert_collections(
-                data['productid'],
-                data['collection']
+            await main_db.sql_insert_store_detail(
+                category=data['category'],
+                info_product=data['info_product'],
+                product_id=data['product_id']
             )
 
-        await message.answer('It have been saved')
-        await state.finish()
+            await main_db.sql_insert_collections(
+                product_id = data['product_id'],
+                collection= data['collection']
+            )
+
+            await message.answer('It have been saved')
+            await state.finish()
 
     elif message.text.lower().strip() == 'no':
-        await message.answer('It was cancelled.', reply_markup=start_markup)
+        await message.answer('It was cancelled.', reply_markup=buttons.start_markup)
         await state.finish()
 
     else:
-        await message.answer('Enter yes or no.')
+        await message.answer('enter yes or no')
 
 async def cancel_fsm(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
 
     if current_state is not None:
         await state.finish()
-        await message.answer('Have been cancelled!', reply_markup=start_markup)
+        await message.answer('Have been cancelled!', reply_markup=buttons.start_markup)
+
 
 def register_fsmstore_handlers(dp: Dispatcher):
-    dp.register_message_handler(cancel_fsm, Text(equals='cancel',
-                                                 ignore_case=True), state='*')
 
     dp.register_message_handler(start_fsm_store, commands=['registration_store'])
-    dp.register_message_handler(load_modelname, state=FSMStore.modelname)
-    dp.register_message_handler(load_size, state=FSMStore.size)
-    dp.register_message_handler(load_category, state=FSMStore.category)
-    dp.register_message_handler(load_price, state=FSMStore.price)
-    dp.register_message_handler(load_photo, state=FSMStore.photo, content_types=['photo'])
-    dp.register_message_handler(load_productid, state=FSMStore.productid)
-    dp.register_message_handler(load_collection, state=FSMStore.collection)
-    dp.register_message_handler(load_category_extra, state=FSMStore.category_extra)
-    dp.register_message_handler(load_infoproduct , state=FSMStore.infoproduct)
-    dp.register_message_handler(load_submit, state=FSMStore.Submit)
+    dp.register_message_handler(load_name_product, state=store_fsm.name_product)
+    dp.register_message_handler(load_size, state=store_fsm.size)
+    dp.register_message_handler(load_category, state=store_fsm.category)
+    dp.register_message_handler(load_price, state=store_fsm.price)
+    dp.register_message_handler(load_photo, state=store_fsm.photo, content_types=['photo'])
+    dp.register_message_handler(load_product_id, state=store_fsm.product_id)
+    dp.register_message_handler(load_collection, state=store_fsm.collection)
+    dp.register_message_handler(load_info_product , state=store_fsm.info_product)
+    dp.register_message_handler(load_submit, state=store_fsm.submit)
 
