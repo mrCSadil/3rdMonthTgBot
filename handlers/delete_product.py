@@ -24,7 +24,7 @@ async def send_all_products(call: types.CallbackQuery):
 
     if products: # True
         for product in products:
-            caption = (f'Название - {product["name_product"]}\n'
+            caption = (f'Название - {product["modelname"]}\n'
             f'Размер - {product["size"]}\n'
             f'Категория - {product["category"]}\n'
             f'Артикул - {product["product_id"]}\n'
@@ -52,7 +52,7 @@ async def delete_all_products_handler(call: types.CallbackQuery):
 
     if call.message.photo:
         new_caption = 'Товар удален! Обновите список.'
-        photo_404 = open("media/hqdefault.png", 'rb')
+        photo_404 = open("media/img.png", 'rb')
 
         await call.message.edit_media(
             InputMediaPhoto(media=photo_404, caption=new_caption))

@@ -23,7 +23,7 @@ async def send_all_products(call: types.CallbackQuery):
 
     if products: # True
         for product in products:
-            caption = (f'Название - {product["name_product"]}\n'
+            caption = (f'Название - {product["modelname"]}\n'
             f'Размер - {product["size"]}\n'
             f'Категория - {product["category"]}\n'
             f'Артикул - {product["product_id"]}\n'

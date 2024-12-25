@@ -8,7 +8,7 @@ from db import main_db
 
 
 class store_fsm(StatesGroup):
-    name_product = State()
+    modelname = State()
     size = State()
     category = State()
     price = State()
@@ -22,12 +22,12 @@ class store_fsm(StatesGroup):
 async def start_fsm_store(message: types.Message):
     await message.answer('Введите название товара: ',
                          reply_markup=buttons.cancel_markup)
-    await store_fsm.name_product.set()
+    await store_fsm.modelname.set()
 
 
-async def load_name_product(message: types.Message, state: FSMContext):
+async def load_modelname(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['name_product'] = message.text
+        data['modelname'] = message.text
 
     await store_fsm.next()
     await message.answer('Введите размер товара: ')
@@ -89,7 +89,7 @@ async def load_photo(message: types.Message, state: FSMContext):
     keyboard.add(KeyboardButton(text="yes"), KeyboardButton(text="no"))
 
     await message.answer_photo(photo=data['photo'],
-                               caption=f'Название - {data["name_product"]}\n'
+                               caption=f'Название - {data["modelname"]}\n'
                                        f'Размер - {data["size"]}\n'
                                        f'Категория - {data["category"]}\n'
                                        f'Артикул - {data["product_id"]}\n'
@@ -103,7 +103,7 @@ async def load_submit(message: types.Message, state: FSMContext):
     if message.text == 'yes':
         async with state.proxy() as data:
             await main_db.sql_insert_store(
-                modelname =data['name_product'],
+                modelname=data['modelname'],
                 size=data['size'],
                 price=data['price'],
                 product_id=data['product_id'],
@@ -144,7 +144,7 @@ async def cancel_fsm(message: types.Message, state: FSMContext):
 def register_fsmstore_handlers(dp: Dispatcher):
 
     dp.register_message_handler(start_fsm_store, commands=['registration_store'])
-    dp.register_message_handler(load_name_product, state=store_fsm.name_product)
+    dp.register_message_handler(load_modelname, state=store_fsm.modelname)
     dp.register_message_handler(load_size, state=store_fsm.size)
     dp.register_message_handler(load_category, state=store_fsm.category)
     dp.register_message_handler(load_price, state=store_fsm.price)

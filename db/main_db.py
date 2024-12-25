@@ -23,9 +23,9 @@ async def sql_insert_registered(fullname, age, gender, email, photo):
     ))
     db.commit()
 
-async def sql_insert_store(name_product, size, price, product_id, photo):
+async def sql_insert_store(modelname, size, price, product_id, photo):
     cursor.execute(queries.INSERT_store_QUERY, (
-        name_product, size, price, product_id, photo
+        modelname, size, price, product_id, photo
     ))
     db.commit()
 
@@ -60,8 +60,8 @@ def fetch_all_products():
     products = conn.execute("""
     SELECT s.*, sd.*, c.*
     FROM store s
-    INNER JOIN store_details sd ON s.product_id = sd.product_id
-    INNER JOIN collection c ON s.collection_id = c.collection_id
+    INNER JOIN store_details sd ON s.productid = sd.product_id
+    INNER JOIN collection_products c ON s.productid = c.productid
     """).fetchall()
     conn.close()
     return products
@@ -72,15 +72,7 @@ def fetch_all_products():
 def delete_product(product_id):
     conn = get_db_connection()
 
-    conn.execute('DELETE FROM store WHERE product_id = ?', (product_id,))
+    conn.execute('DELETE FROM store WHERE productid = ?', (product_id,))
 
     conn.commit()
     conn.close()
-
-# def delete_product(product_id):
-#     conn = get_db_connection()
-#
-#     conn.execute('DELETE FROM store WHERE product_id = ?', (product_id,))
-#
-#     conn.commit()
-#     conn.close()

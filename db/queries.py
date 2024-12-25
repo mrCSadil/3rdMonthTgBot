@@ -19,13 +19,14 @@ INSERT_registered_QUERY = """
 CREATE_TABLE_store = """
     CREATE TABLE IF NOT EXISTS store (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name_product TEXT,
+    modelname TEXT,
     size TEXT,
     price TEXT, 
-    product_id TEXT,
-    photo TEXT
+    photo TEXT,
+    product_id TEXT
     )
 """
+
 
 
 CREATE_TABLE_store_details = """
@@ -38,7 +39,7 @@ CREATE_TABLE_store_details = """
 """
 
 INSERT_store_QUERY = """
-    INSERT INTO store (name_product, size, price, product_id, photo)
+    INSERT INTO store (modelname, size, price, photo, productid)
     VALUES (?, ?, ?, ?, ?)
 """
 
@@ -57,6 +58,6 @@ CREATE_TABLE_collection_products = """
 """
 
 INSERT_collection_QUERY = """
-    INSERT INTO collection (id, productid, collection)
+    INSERT INTO collection_products (productid, collection)
     VALUES (?, ?)
 """
