@@ -39,6 +39,7 @@ async def send_all_products(call: types.CallbackQuery):
             f'Размер - {product["size"]}\n'
             f'Категория - {product["category"]}\n'
             f'Артикул - {product["product_id"]}\n'
+            f'Collection - {product["collection"]}\n'
             f'Информация о товаре - {product["info_product"]}\n'
             f'Цена - {product["price"]}\n')
 
@@ -65,7 +66,8 @@ async def edit_products(call: types.CallbackQuery, state: FSMContext):
     size_button = InlineKeyboardButton(text="Размер", callback_data="field_size")
     photo_button = InlineKeyboardButton(text="Фото", callback_data="field_photo")
     info_button = InlineKeyboardButton(text="Инфо о товаре", callback_data="field_info_product")
-    keyboard.add(name_button, category_button, price_button, size_button, photo_button, info_button)
+    collection_button = InlineKeyboardButton(text="Инфо collection ", callback_data="field_collection")
+    keyboard.add(name_button, category_button, price_button, size_button, photo_button, info_button, collection_button)
 
     await call.message.answer('Выберите поле для редактирования:', reply_markup=keyboard)
 
@@ -78,7 +80,8 @@ async def select_field_product(call: types.CallbackQuery, state: FSMContext):
         'field_price': "price",
         'field_size': "size",
         'field_photo': "photo",
-        'field_info_product': "info_product"
+        'field_info_product': "info_product",
+        'field_collection' : "collection"
     }
 
     field = field_map.get(call.data)

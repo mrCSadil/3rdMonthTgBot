@@ -84,12 +84,15 @@ def delete_product(product_id):
 def update_product_field(product_id, field_name, new_value):
     store_table = ["modelname", "size", "price", "photo"]
     store_detail_table = ["info_product", "category"]
+    collection_table =  ["product_id", "collection"]
     conn = get_db_connection()
     try:
         if field_name in store_table:
             query = f'UPDATE store SET {field_name} = ? WHERE product_id = ?'
         elif field_name in store_detail_table:
             query = f'UPDATE store_detail SET {field_name} = ? WHERE product_id = ?'
+        elif field_name in collection_table:
+            query = f'UPDATE collection SET {field_name} = ? WHERE product_id = ?'
         else:
             raise ValueError(f'Нет такого поля {field_name}')
 
