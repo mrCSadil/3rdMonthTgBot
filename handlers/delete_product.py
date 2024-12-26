@@ -46,7 +46,7 @@ async def send_all_products(call: types.CallbackQuery):
 
 
 async def delete_all_products_handler(call: types.CallbackQuery):
-    product_id = int(call.data.split('_')[1])
+    product_id = call.data.split('_')[1]
 
     main_db.delete_product(product_id)
 

@@ -25,7 +25,7 @@ async def sql_insert_registered(fullname, age, gender, email, photo):
 
 async def sql_insert_store(modelname, size, price, product_id, photo):
     cursor.execute(queries.INSERT_store_QUERY, (
-        modelname, size, price, product_id, photo
+        modelname, size, price, photo, product_id
     ))
     db.commit()
 
@@ -76,3 +76,26 @@ def delete_product(product_id):
 
     conn.commit()
     conn.close()
+
+
+# CRUD - Update
+# =====================================================
+
+def update_product_field(product_id, field_name, new_value):
+    store_table = ["modelname", "size", "price", "photo"]
+    store_detail_table = ["info_product", "category"]
+    conn = get_db_connection()
+    try:
+        if field_name in store_table:
+            query = f'UPDATE store SET {field_name} = ? WHERE product_id = ?'
+        elif field_name in store_detail_table:
+            query = f'UPDATE store_detail SET {field_name} = ? WHERE product_id = ?'
+        else:
+            raise ValueError(f'Нет такого поля {field_name}')
+
+        conn.execute(query, (new_value, product_id))
+        conn.commit()
+    except sqlite3.OperationalError as e:
+        print(f'Ошибка - {e}')
+    finally:
+        conn.close()
